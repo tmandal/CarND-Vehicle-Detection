@@ -78,7 +78,9 @@ When the above pipeline (CNN classifier + heatmap filter + grouping) is applied 
 ## Submitted Files
 
 Vehicle_Detection_CNN.ipynb : ipython notebook for vehicle detection pipeline
+
 output_images/result?.jpg : test images annotated with detected vehicles
+
 project_video_w_vehicles.mp4 : project video output with detected vehicles
 
 ## Conclusions
