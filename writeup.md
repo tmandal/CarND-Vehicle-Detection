@@ -87,6 +87,6 @@ project_video_w_vehicles.mp4 : project video output with detected vehicles
 
 The main challenge in this project was to reject false positives as predicted by the classifier. There were false positives all over the images sometimes (misclassifying plants, traffic signs etc). Using a region of interest helped remove some of these. But there were still quite a few false positives. Changing the thresholds for heatmap helped sometimes but it could get rid of positively identified vehicles sometimes. So, tweaking thresholds for heatmap appeared to be not a reasonable solution. Keeping the history of bounding boxes from previous frames and filtering them using cv2.groupRectangle with groupThreshold worked great to mask off false positives that appeared with strong signals in a couple of consecutive frames. 
 
-This pipeline might fail to recognize under extreme weather conditions. Also, it might fail to recognize some vehicles from oncoming traffic. Oncoming traffic moves too fast in the frame of reference and the above pipeline implementation may need to reduce groupThreshold for cv2.groupRectangle to recognize oncoming vehicle quickly.
+This pipeline might fail to recognize some vehicles under extreme weather conditions. Also, it might fail to recognize some vehicles from oncoming traffic. Oncoming traffic moves too fast in the frame of reference and the above pipeline implementation may need to reduce groupThreshold for cv2.groupRectangle to recognize oncoming vehicle quickly.
 
 
