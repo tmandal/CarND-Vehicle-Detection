@@ -9,14 +9,12 @@ The goals / steps of this project are the following:
 * Run the above pipeline on a video stream (start with the test_video.mp4 and later implement on full project_video.mp4) and ensure that vehicles are detected in bounding boxes.
 
 [//]: # (Image References)
-[image1]: ./examples/car_not_car.png
-[image2]: ./examples/HOG_example.jpg
-[image3]: ./examples/sliding_windows.jpg
-[image4]: ./examples/sliding_window.jpg
-[image5]: ./examples/bboxes_and_heat.png
-[image6]: ./examples/labels_map.png
-[image7]: ./examples/output_bboxes.png
+[image1]: ./output_images/training_samples.png
+[image2]: ./examples/detected_bboxes.jpg
+[image3]: ./examples/heatmap.jpg
+[image4]: ./examples/vehicle_detection.jpg
 [video1]: ./project_video.mp4
+[video2]: ./project_video_w_vehicles.mp4
 
 ## Discussion on choice of implementation
 
@@ -27,6 +25,8 @@ As suggested in project rubric and in the lectures, I initially implemented a li
 ### 1. Convolutional neural network as a classifier 
 
 CNNs have been proven to detect and classify objects in images. For this vehicle detection project, a CNN can be employed to identify vehicles with the help of labeled data set from udacity. The data set has about 8000 vehicle images and another 8000 non-vehicle images (road patches, railings etc.) of 64x64 size. A couple of sample training images are shown below.
+
+![alt text][image1]
 
 The CNN is architected with following layers. First, the values from input images are normalized in [-1, 1]. Then first three convolutional layers work as feature extractors. The extracted features pass through a pooling layer to down-size activations before using a fully connected layer for estimating probability of vehicle detection. There are a few specialities in the last layer. A dropout layer is used before the last layer in order to regularize the network during training. The fully connected layer is implemented as a convolutional layer with 1x1x1 output. The reason behind using convolution for the last layer is that larger input images can be fed to this CNN to generate their batch outputs.
 
@@ -55,14 +55,24 @@ This CNN classifier is a binary predictor and predicts a probability close to 1.
 
 The images typically do not have vehicles all over the place. So, a sub-image is selected with a patch of ((0, 400), (1280, 720)) from 1280x720 images as region of interest. This selection avoids all false positives that may have been detected as vehicles in upper half of the images.
 
-Next, this image patch is inferred using a model of above network with trained weights and the output of last CNN layer is looked at for predictions. Because the input image is now 1280x260, the above network will now output 159x31 prediction matrix. Each element of this prediction matrix will now predict whether or not a vehicle is detected in a 64x64 patch in the input image. The location of 64x64 patch in the input image can be found by scaling the location in prediction matrix by the factor compunded by sizes of pooling layers used in the network. Thus, this network can do sliding windows of vehicle detection in a single test of an image. Further, for multi-scaling windows, the input image can be scaled back and forth to detect near and far vehicles in the images by running the network on scaled versions of the images.
+Next, this image patch is inferred using a model of above network with trained weights and the output of last CNN layer is looked at for predictions. Because the input image is now 1280x260, the above network will now output 159x31 prediction matrix. Each element of this prediction matrix will now predict whether or not a vehicle is detected in a 64x64 patch in the input image. The location of 64x64 patch in the input image can be found by scaling the location in prediction matrix by the factor compunded by sizes of pooling layers used in the network. Thus, this network can do sliding windows of vehicle detection in a single test of an image. Further, for multi-scaling sliding windows, the input image can be scaled back and forth to detect near and far vehicles in the images by running the network on scaled versions of the images.
 
 ### 3. Removing false positive detection and combining multiple nearby detections
 
-After a test image is tested using the classifier, it is observed that aouple of false positives are classified in some images and many many bounding boxes are identified around the actual vehicles of reasonable sizes in the images. This means that there are very strong signals for the real vehicles with few weak signals for non-vehicles. So, the vanilla classifier is working as expected. It's just that weak signals need to be filtered out. 
+After a test image is tested using the classifier, it is observed that a couple of false positives are classified in some images and many many bounding boxes are identified around the actual vehicles of reasonable sizes in the images. This means that there are very strong signals for the real vehicles with few weak signals for non-vehicles. So, the vanilla classifier is working as expected. It's just that weak signals need to be filtered out. 
 
-The filtering is done via heatmap technique as suggested in the project. Basically, each bounding box as detected by the classifier heats up its region in an empty image of one color channel. As the stimulations of detected bounding boxes add up, overlapping regions of bounding boxes separate out strong regions from weak regions. Applying a threshold on this stimulated heatmap helps isolate bounding boxes of vehicles which tend to have strong signals from classifier. Then, strong pixels are collected from this heatmap and grouped them into rectangles that are expected to be wrapping around detected vehicles. Thus, weaker false positive bounding boxes are rejected and stronger bounding boxes are coalesced to generate bounding boxes of detected vehicles.
+The filtering is done via heatmap technique as suggested in the project. Basically, each bounding box as detected by the classifier heats up its region in an empty image of one color channel. As the stimulations of detected bounding boxes add up, overlapping regions of bounding boxes separate out strong regions from weak regions in this heatmap. Applying a threshold on this stimulated heatmap helps isolate bounding boxes of vehicles which tend to have strong signals from classifier. Then, strong pixels are collected from this heatmap and grouped them into rectangles that are expected to be wrapping around detected vehicles. Thus, weaker false positive bounding boxes are rejected and stronger bounding boxes are coalesced to generate bounding boxes of detected vehicles.
+
+![alt text][image2]
+![alt text][image3]
+![alt text][image4]
 
 ### 4. Smoothing vehicle detection boxes in video
 
-When the above pipeline (CNN classifier + heatmap filter + grouping) is applied in each frame of project video, there are two things that look odd. First, there are still a few false positives that might be happening in one frame or two. Secondly, the bounding boxes around detected vehicles jump from one frame to next frame. In order to solve both of these issues, a history of detected bounding boxes are kept from last few frames and these bounding boxes are further grouped using cv2.groupRectangle with some group threshold. This thresholding rejcts spurious bounding boxes that might have been detected only in a frame or two. And the rectangle grouping from cv2.groupRectangle using a history of bounding boxes enables smoothness in final bounding boxes.
+When the above pipeline (CNN classifier + heatmap filter + grouping) is applied in each frame of project video, there are two things that look odd. First, there are still a few false positives that are observed in one frame or two. Secondly, the bounding boxes around detected vehicles abruptly jump from one frame to next frame. In order to solve both of these issues, a history of detected bounding boxes are kept from last few frames and these bounding boxes are further grouped using cv2.groupRectangle with some group threshold. This thresholding rejcts spurious bounding boxes that might have been detected only in a frame or two. And the rectangle grouping from cv2.groupRectangle using a history of bounding boxes enables smoothness in final bounding boxes.
+
+![alt text][video4]
+
+## Conclusions
+
+
