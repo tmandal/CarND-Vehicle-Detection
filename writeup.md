@@ -10,9 +10,9 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 [image1]: ./output_images/training_samples.png
-[image2]: ./examples/detected_bboxes.jpg
-[image3]: ./examples/heatmap.jpg
-[image4]: ./examples/vehicle_detection.jpg
+[image2]: ./output_images/detected_bboxes.jpg
+[image3]: ./output_images/heatmap.jpg
+[image4]: ./output_images/vehicle_detection.jpg
 [video1]: ./project_video.mp4
 [video2]: ./project_video_w_vehicles.mp4
 
