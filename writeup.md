@@ -63,6 +63,8 @@ After a test image is tested using the classifier, it is observed that a couple 
 
 The filtering is done via heatmap technique as suggested in the project. Basically, each bounding box as detected by the classifier heats up its region in an empty image of one color channel. As the stimulations of detected bounding boxes add up, overlapping regions of bounding boxes separate out strong regions from weak regions in this heatmap. Applying a threshold on this stimulated heatmap helps isolate bounding boxes of vehicles which tend to have strong signals from classifier. Then, strong pixels are collected from this heatmap and grouped them into rectangles that are expected to be wrapping around detected vehicles. Thus, weaker false positive bounding boxes are rejected and stronger bounding boxes are coalesced to generate bounding boxes of detected vehicles.
 
+Below are the images captured from vehicle detection pipeline for a test image.
+
 ![alt text][image2]
 ![alt text][image3]
 ![alt text][image4]
@@ -72,6 +74,12 @@ The filtering is done via heatmap technique as suggested in the project. Basical
 When the above pipeline (CNN classifier + heatmap filter + grouping) is applied in each frame of project video, there are two things that look odd. First, there are still a few false positives that are observed in one frame or two. Secondly, the bounding boxes around detected vehicles abruptly jump from one frame to next frame. In order to solve both of these issues, a history of detected bounding boxes are kept from last few frames and these bounding boxes are further grouped using cv2.groupRectangle with some group threshold. This thresholding rejcts spurious bounding boxes that might have been detected only in a frame or two. And the rectangle grouping from cv2.groupRectangle using a history of bounding boxes enables smoothness in final bounding boxes.
 
 ![alt text][video4]
+
+## Submitted Files
+
+Vehicle_Detection_CNN.ipynb : ipython notebook for vehicle detection pipeline
+output_images/result?.jpg : test images annotated with detected vehicles
+project_video_w_vehicles.mp4 : project video output with detected vehicles
 
 ## Conclusions
 
